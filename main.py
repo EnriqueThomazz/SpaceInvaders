@@ -19,6 +19,24 @@ clock = pygame.time.Clock()
 
 currSave = None
 
+clickSound = pygame.mixer.Sound("sounds/click.wav")
+
+def collided(rectA, rectB):
+    x1 = rectA[0]
+    y1 = rectA[1]
+    w1 = rectA[2]
+    h1 = rectA[3]
+
+    x2 = rectB[0]
+    y2 = rectB[1]
+    w2 = rectB[2]
+    h2 = rectB[3]
+
+    if x2 + w2 > x1 > x2 and y2 + h2 > y1 > y2:
+        return 1
+
+    return 0
+
 def drawText(msg, size, color):
     font = pygame.font.SysFont("vgafix.ttf", size)
     textSurf = font.render(msg, False, color)
@@ -33,6 +51,7 @@ def drawButton(x, y, w, h, color, text, textSz, textClr):
         pygame.draw.rect(screen, (150, 0, 0), (x-5, y-5, w+10, h+10))
 
         if pygame.mouse.get_pressed()[0]:
+            clickSound.play()            
             return 1
     
     pygame.draw.rect(screen, color, (x, y, w, h))
@@ -190,9 +209,16 @@ def main_loop(player, currStage):
 
     print(currStage)
 
-    en = []
+    #Sound Effects
+    bckgMusic = pygame.mixer.music.load("sounds/bckgMusic.mp3")
+    pygame.mixer.music.set_volume(0.01)
+    pygame.mixer.music.play(-1, 0.0)
 
-    stg = Stage(currStage)
+    #Generating level
+    hitSound = pygame.mixer.Sound("sounds/hit.wav")
+
+    en = []
+    stg = Stage(currStage, [disw, dish])
 
     for c in range(2):
         en.append(Enemy(20 * c + 80, 20, "images/enemy1.png", [disw, dish]))
@@ -202,10 +228,42 @@ def main_loop(player, currStage):
 
     stg.enemies.append(en)
 
+    paused = False
+
     while running:
-        dt = clock.tick(60)
+        dt = clock.tick(60)    
 
         updateWindow(dt, player, stg)
+
+        for c in stg.currEnemies:
+            #Checking player's shot hit
+            for d in player.shots:
+                rect1 = [d[1], d[2], 4, 8]
+                rect2 = [c.x, c.y, c.width, c.height]
+                if collided(rect1, rect2):
+                    #If its a hit, remove the enemy and remove the shot
+                    stg.currEnemies.remove(c)
+                    player.shots.remove(d)
+            #Checking enemie's shot hit
+            for d in stg.shots:
+                rect1 = [d[1], d[2], 4, 8]
+                rect2 = [player.x, player.y, player.width, player.height]
+                if collided(rect1, rect2):
+                    #If its a hit, decrease player's health
+                    print("TOMOU TIRO AI AMIGAO")
+                    stg.shots.remove(d)
+                    hitSound.play()
+                    player.health -= 1
+                    for c in player.lifeBars:
+                        if c[1] == 1:
+                            c[0] = pygame.image.load("images/lifebarEmpty.png")
+                            c[1] = 0
+                            break
+
+        if player.health <= 0:
+            print("GAME OVER!")
+            running = False
+            menuScreen()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -213,15 +271,19 @@ def main_loop(player, currStage):
                 quit()
 
             if event.type == pygame.KEYDOWN:
+                #PAUSE DOES NOT WORK PROPERLY --------------------------------------------------------------------------------------------------
                 if event.key == pygame.K_ESCAPE:
-                    if pauseScreen() == -1:
+                    running = False                    
+                    opt = pauseScreen()
+                    if opt == -1:
                         #Vai para o menu
                         running = False
                         menuScreen()
-                    else:
+                    elif opt == 1:
                         #Vai para a tela de seleçao de fases
                         running = False
-                        selectStageScreen(player) 
-             
+                        selectStageScreen(player)  
+                    else:
+                        running = True         
 
 menuScreen()

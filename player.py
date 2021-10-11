@@ -9,12 +9,17 @@ class Player():
         self.width = 64
         self.height = 64
 
-        self.health = 3
+        self.health = 2
+        self.lifeBars = []
+
+        for c in range(self.health):
+            self.lifeBars.append([pygame.image.load("images/lifebarFull.png"), 1])
 
         self.shootImg = "images/shot.png"
         self.shots = []
         self.timeShot = 0
         self.shootDelay = 300
+        self.shootSound = pygame.mixer.Sound("sounds/playershoot.mp3")
 
         self.limits = [[0, limits[0]], [0, limits[1]]]
 
@@ -22,6 +27,11 @@ class Player():
 
     def draw(self, surf):
         surf.blit(self.image, (self.x, self.y))
+
+        lfBrs = 0
+        for c in self.lifeBars:
+            surf.blit(c[0], (self.limits[0][1] - 80 * (lfBrs+1), 10))
+            lfBrs += 1
 
         for c in self.shots:
             surf.blit(c[0], (c[1], c[2]))
@@ -61,6 +71,8 @@ class Player():
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_SPACE] and self.timeShot <= 0:
+            self.shootSound.play()
+
             x = self.x + self.width/2 - 2
             y = self.y - 8
 

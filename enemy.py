@@ -11,40 +11,32 @@ class Enemy():
 
         self.vx = 0
         self.vy = 0
-        self.speedRange = [-0.2, 0, 0.2]
-        self.updateMovTime = 0
-
+        self.speedRange = [-0.3, 0, 0.3]
+        self.updateMovTime = 5
 
         self.shootTime = 0
         self.shootDelay = 1600
-        self.shots = []
-        self.shootImg = "images/enemyShot.png"
-        self.shootSpeed = 0.2
+        self.shootImg = "images/enemyShot.png"        
 
         self.limits = [[0, limits[0]], [0, limits[1]]]
 
     def draw(self, surf):
         surf.blit(self.img, (self.x, self.y))
-        
-        for c in self.shots:
-            surf.blit(c[0], (c[1], c[2]))
 
     def shoot(self, dt):
+        self.shootTime -= dt
+
         if self.shootTime <= 0:
             x = self.x + self.width/2 - 2
             y = self.y + self.height
-
-            self.shots.append([pygame.image.load(self.shootImg), x, y])
-
+            
             self.shootTime = self.shootDelay
 
-        for c in self.shots:
-            c[2] += 0.2 * dt
+            sht = [pygame.image.load(self.shootImg), x, y]
 
-            if c[2] > self.limits[0][1]:
-                self.shots.remove(c) 
+            return sht       
 
-        self.shootTime -= dt
+        return -1
         
     def chooseMov(self):
         return random.choice(self.speedRange), random.choice(self.speedRange)
