@@ -9,7 +9,7 @@ class Player():
         self.width = 64
         self.height = 64
 
-        self.health = 2
+        self.health = 5
         self.lifeBars = []
 
         for c in range(self.health):

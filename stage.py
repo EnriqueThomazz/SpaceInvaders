@@ -45,6 +45,11 @@ class Stage():
         if atk != 'pilar' and atk != 'none':
             for c in range(atk[1]):
                 self.currEnemies.append(Enemy(30 * c, 0, "images/enemy2.png", [self.limits[0][1], self.limits[1][1]]))
+
+    def isClear(self):
+        if len(self.enemies) == 0 and len(self.currEnemies) == 0 and self.boss == None:
+            return 1
+        return -1
             
 
 

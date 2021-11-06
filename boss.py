@@ -1,5 +1,6 @@
 import pygame
 import random
+from math import ceil
 
 from stage import Stage
 
@@ -12,14 +13,15 @@ class Boss():
         self.width = self.img.get_rect()[2]
         self.height = self.img.get_rect()[3]
 
-        self.health = 200
+        self.health = 672
+        self.max_health = self.health
         self.lifebarIMG = None
 
         #Speed attributes
         self.vx = 0
         self.vy = 0
         self.speedRange = [-0.3, 0, 0.3]
-        self.updateMovCD = 0              
+        self.updateMovCD = 0
 
         #Attack attributes
         self.attacks = ['pilar', 'summon']
@@ -103,6 +105,14 @@ class Boss():
     def update(self, surf, dt):
         surf.blit(self.img, (self.x, self.y))
 
+        #Drawing the lifebar
+        lifebar_startX = 50
+        lifebar_startY = surf.get_height() - 20
+
+        for c in range(self.health):
+            life_x = lifebar_startX + 1 + (4 * (c % 200)) 
+            pygame.draw.rect(surf, (255, 0, 0), (life_x, lifebar_startY - (12 * (ceil( (c+1) / 200) - 1)), 2, 10))
+
         #Updating movement
         self.updateMovCD += 1/dt
         if self.updateMovCD >= 5:
@@ -167,5 +177,13 @@ def main_loop():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    stg.boss.health -= 1
+                    print(stg.boss.health)
+                elif event.key == pygame.K_LSHIFT:
+                    stg.boss.health -= 50
+                    print(stg.boss.health)
 
 main_loop()

@@ -12,7 +12,7 @@ class Enemy():
         self.vx = 0
         self.vy = 0
         self.speedRange = [-0.3, 0, 0.3]
-        self.updateMovTime = 5
+        self.updateMovTime = 4
 
         self.shootTime = 0
         self.shootDelay = 1600

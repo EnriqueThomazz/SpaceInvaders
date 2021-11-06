@@ -184,7 +184,7 @@ def selectStageScreen(player):
         title, titleRct = drawText("Selecione uma fase", 80, white)
         screen.blit(title, (disw/2 - titleRct[2]/2, 20))
 
-        for c in range(1, 11):
+        for c in range(1, 5):
             line = c // 6 + 1     
 
             if c > player.stage:
